@@ -23,22 +23,30 @@ set.seed(7)
 ```
 
 ## Objective
-For a given forest, you will perform a sensitivity analysis of model predictions of conductance. Atmospheric conductance refers to how easily vapor diffuses from vegetation surfaces.  
 
-Consider the sensitivity of your estimate to uncertainty in the following parameters and inputs: 
-- $h$ is vegetation height (cm)
-- $k_d$ is a parameter; default 0.7
-- $k_0$ is a parameter; default 0.1
-- $v$ is windspeed (cm/s)
+For a given forest, you will perform a sensitivity analysis of model
+predictions of conductance. Atmospheric conductance refers to how easily
+vapor diffuses from vegetation surfaces.
+
+Consider the sensitivity of your estimate to uncertainty in the
+following parameters and inputs: - $h$ is vegetation height (cm) - $k_d$
+is a parameter; default 0.7 - $k_0$ is a parameter; default 0.1 - $v$ is
+windspeed (cm/s)
 
 ### Assumptions
-- Assume windspeed, $v$, is normally distributed with a mean of 250 cm/s; a standard deviation of 30 cm/s
-- Assume vegetation height, $h$, is somewhere between 9.5 and 10.5 m (but any value in that range is equally likely)
-- Assume the $k_d$ and $k_0$ are normally distributed; standard deviation of 1% of their default values
 
+-   Assume windspeed, $v$, is normally distributed with a mean of 250
+    cm/s; a standard deviation of 30 cm/s
+-   Assume vegetation height, $h$, is somewhere between 9.5 and 10.5 m
+    (but any value in that range is equally likely)
+-   Assume the $k_d$ and $k_0$ are normally distributed; standard
+    deviation of 1% of their default values
 
 ## Latin Hypercube Sampling
-Let's use the Latin hypercube approach to generate parameter values for the parameters and inputs:
+
+Let's use the Latin hypercube approach to generate parameter values for
+the parameters and inputs:
+
 ```{r}
 # Define parameters and inputs
 par_names <- c("v", "height", "k_o", "k_d")
@@ -76,7 +84,10 @@ par_df[,"height"] <- qunif(par_quant[,"height"], min = 9.5, max = 10.5)
 ```
 
 ## Atmospheric Conductance Model
-Let's now run the atmospheric conductance model for these parameters and inputs:
+
+Let's now run the atmospheric conductance model for these parameters and
+inputs:
+
 ```{r}
 # Use pmap() to run Catm() for all samples in par_df
 ca_outputs <- pmap(par_df, Catm)
@@ -90,7 +101,10 @@ par_outputs <- par_df %>%
 ```
 
 ## Plots
-Let's plot conductance estimates in a way that accounts for parameter uncertainty:
+
+Let's plot conductance estimates in a way that accounts for parameter
+uncertainty:
+
 ```{r warning = FALSE}
 # Wrangle data for visualization
 par_outputs_long <- par_outputs %>% 
@@ -113,7 +127,9 @@ ggplot(par_outputs_long, aes(y = output)) +
 ```
 
 ### Parameter Sensitivity
+
 Next, plot conductance estimates against each of your parameters:
+
 ```{r}
 # Plot conductance estimates against each parameters
 ggplot(par_outputs_long, aes(parmvalue, output, col = parm)) + 
@@ -129,8 +145,10 @@ ggplot(par_outputs_long, aes(parmvalue, output, col = parm)) +
   theme(axis.title.x = element_blank())
 ```
 
-## Quantify Sensitivity 
+## Quantify Sensitivity 3
+
 Let's estimate the Partial Rank Correlation Coefficients:
+
 ```{r message = FALSE}
 # Apply pcc() for partial rank correlation coefficients 
 senresult_rank <- pcc(par_df, par_outputs$output, rank = TRUE)
@@ -142,6 +160,17 @@ senresult_rank$PRCC
 plot(senresult_rank)
 ```
 
-## Discussion 
-**What do your results tell you about how aerodynamic conductance? What does it suggest about what you should focus on if you want to reduce uncertainty in aerodynamic conductance estimates? Does this tell you anything about the sensitivity of plant water use to climate change?**
-Aerodynamic conductance is most sensitive to the inputs windspeed, $v$, which is normally distributed, and vegetation height, $height$, which is uniform distributed. We can improve uncertainty in aerodynamic conductance estimates by focusing on either input. This is a consideration for climate change since wind speed will vary with regional and seasonal variability and plant water use is especially sensitive. 
+## Discussion
+
+**What do your results tell you about how aerodynamic conductance? What
+does it suggest about what you should focus on if you want to reduce
+uncertainty in aerodynamic conductance estimates? Does this tell you
+anything about the sensitivity of plant water use to climate change?**
+
+Aerodynamic conductance is most sensitive to the inputs windspeed, $v$,
+which is normally distributed, and vegetation height, $height$, which is
+uniform distributed. We can improve uncertainty in aerodynamic
+conductance estimates by focusing on either input. This is a
+consideration for climate change since wind speed will vary with
+regional and seasonal variability and plant water use is especially
+sensitive.
