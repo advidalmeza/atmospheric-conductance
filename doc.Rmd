@@ -89,7 +89,7 @@ par_outputs <- par_df %>%
   mutate(output = output_array)
 ```
 
-## Plots of Parameter versus
+## Plots
 Let's plot conductance estimates in a way that accounts for parameter uncertainty:
 ```{r warning = FALSE}
 # Wrangle data for visualization
